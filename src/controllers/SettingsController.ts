@@ -1,20 +1,20 @@
-import { getCustomRepository } from 'typeorm';
-
-import { SettingsRepository } from '../repositories/SettingsRepository';
+import { SettingsService } from './../services/SettingsService';
+import { Request, Response } from 'express';
 
 export class SettingsController {
-  async create(request, response) {
+  async create(request: Request, response: Response) {
     const { chat, username } = request.body;
 
-    const settingRepository = getCustomRepository(SettingsRepository);
+    const settingsService = new SettingsService();
 
-    const settings = settingRepository.create({
-      chat,
-      username,
-    });
+    try {
+      const settings = await settingsService.create({ chat, username });
 
-    await settingRepository.save(settings);
-
-    return response.status(200).json(settings);
+      return response.status(200).json(settings);
+    } catch (err) {
+      return response.status(400).json({
+        message: 'User already exists!',
+      });
+    }
   }
 }
